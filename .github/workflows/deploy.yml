@@ -1,0 +1,61 @@
+name: deploy
+
+on:
+  workflow_call:
+    inputs:
+      registry:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+      service:
+        required: true
+        type: string
+    secrets:
+      kube-config:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Prepare deployment template
+        uses: actions/checkout@v2
+        with:
+          repository: xingrz-dev/chart
+          path: deploy
+
+      - name: Bake deployment
+        id: bake
+        uses: Azure/k8s-bake@v1
+        with:
+          renderEngine: helm
+          helmChart: ./deploy/
+          overrideFiles: ./deployment.yml
+          overrides: |
+            name:${{ inputs.service }}
+            image:${{ inputs.registry }}/${{ inputs.image }}:${{ github.sha }}
+          helm-version: latest
+
+      - name: Prepare Kubernetes context
+        uses: Azure/k8s-set-context@v2
+        with:
+          kubeconfig: ${{ secrets.kube-config }}
+
+      - name: Get deploy namespace
+        id: deployment
+        uses: KJ002/read-yaml@1.5
+        with:
+          file: ${{ steps.bake.outputs.manifestsBundle }}
+          key-path: '["metadata", "namespace"]'
+
+      - name: Deploy
+        uses: Azure/k8s-deploy@v1.2
+        with:
+          manifests: ${{ steps.bake.outputs.manifestsBundle }}
+          namespace: ${{ steps.deployment.outputs.data }}
+          kubectl-version: latest
