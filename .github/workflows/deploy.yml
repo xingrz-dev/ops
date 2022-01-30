@@ -46,16 +46,16 @@ jobs:
         with:
           kubeconfig: ${{ secrets.kube-config }}
 
-      - name: Get deploy namespace
+      - name: Get deploy location
         id: deployment
         uses: KJ002/read-yaml@1.5
         with:
-          file: ${{ steps.bake.outputs.manifestsBundle }}
-          key-path: '["metadata", "namespace"]'
+          file: ./deployment.yml
+          key-path: '["location"]'
 
       - name: Deploy
         uses: Azure/k8s-deploy@v1.2
         with:
           manifests: ${{ steps.bake.outputs.manifestsBundle }}
-          namespace: ${{ steps.deployment.outputs.data }}
+          namespace: app-${{ steps.deployment.outputs.data }}
           kubectl-version: latest
