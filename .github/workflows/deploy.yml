@@ -59,3 +59,9 @@ jobs:
           manifests: ${{ steps.bake.outputs.manifestsBundle }}
           namespace: app-${{ steps.deployment.outputs.data }}
           kubectl-version: latest
+
+      - name: Archive resource yaml
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-${{ steps.deployment.outputs.data }}-${{ inputs.service }}-${{ github.sha }}
+          path: ${{ steps.bake.outputs.manifestsBundle }}
