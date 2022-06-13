@@ -44,5 +44,3 @@ jobs:
           tags: |
             ${{ inputs.registry }}/${{ inputs.image }}:${{ github.sha }}
             ${{ inputs.registry }}/${{ inputs.image }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
