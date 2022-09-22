@@ -38,7 +38,8 @@ jobs:
           overrideFiles: ./deployment.yml
           overrides: |
             name:${{ inputs.service }}
-            image:${{ inputs.registry }}/${{ inputs.image }}:${{ github.sha }}
+            registry:${{ inputs.registry }}
+            image:${{ inputs.image }}:${{ github.sha }}
           helm-version: latest
 
       - name: Prepare Kubernetes context
