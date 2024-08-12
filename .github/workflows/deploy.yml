@@ -31,7 +31,7 @@ jobs:
 
       - name: Bake deployment
         id: bake
-        uses: Azure/k8s-bake@v1
+        uses: Azure/k8s-bake@v3
         with:
           renderEngine: helm
           helmChart: ./deploy/
