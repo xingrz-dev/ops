@@ -12,6 +12,8 @@ on:
       platforms:
         type: string
         default: linux/arm64
+      target:
+        type: string
     secrets:
       registry-username:
         required: true
@@ -40,6 +42,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           platforms: ${{ inputs.platforms }}
+          target: ${{ inputs.target }}
           push: true
           tags: |
             ${{ inputs.registry }}/${{ inputs.image }}:${{ github.sha }}
