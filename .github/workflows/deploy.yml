@@ -21,13 +21,16 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Prepare deployment template
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: xingrz-dev/chart
           path: deploy
+
+      - name: Set up kubectl
+        uses: Azure/setup-kubectl@v4
 
       - name: Bake deployment
         id: bake
@@ -43,7 +46,7 @@ jobs:
           helm-version: latest
 
       - name: Prepare Kubernetes context
-        uses: Azure/k8s-set-context@v2
+        uses: Azure/k8s-set-context@v4
         with:
           kubeconfig: ${{ secrets.kube-config }}
 
@@ -55,14 +58,15 @@ jobs:
           key-path: '["location"]'
 
       - name: Deploy
-        uses: Azure/k8s-deploy@v1.2
+        uses: Azure/k8s-deploy@v5
         with:
+          action: deploy
           manifests: ${{ steps.bake.outputs.manifestsBundle }}
+          strategy: basic
           namespace: app-${{ steps.deployment.outputs.data }}
-          kubectl-version: latest
 
       - name: Archive resource yaml
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: app-${{ steps.deployment.outputs.data }}-${{ inputs.service }}-${{ github.sha }}
           path: ${{ steps.bake.outputs.manifestsBundle }}
