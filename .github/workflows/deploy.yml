@@ -12,6 +12,9 @@ on:
       service:
         required: true
         type: string
+      deployment:
+        type: string
+        default: deployment.yml
     secrets:
       kube-config:
         required: true
@@ -38,7 +41,7 @@ jobs:
         with:
           renderEngine: helm
           helmChart: ./deploy/
-          overrideFiles: ./deployment.yml
+          overrideFiles: ${{ inputs.deployment }}
           overrides: |
             name:${{ inputs.service }}
             registry:${{ inputs.registry }}
@@ -54,7 +57,7 @@ jobs:
         id: deployment
         uses: KJ002/read-yaml@1.5
         with:
-          file: ./deployment.yml
+          file: ${{ inputs.deployment }}
           key-path: '["location"]'
 
       - name: Deploy
